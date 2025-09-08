@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plan de Limpieza - Departamento Triplex</title>
+    <style>
+      :root {
+        --primary: #2c3e50;
+        --secondary: #3498db;
+        --accent: #e74c3c;
+        --light: #ecf0f1;
+        --success: #2ecc71;
+        --warning: #f39c12;
+        --dark: #34495e;
+        --daily: #ffeaa7;
+        --weekly: #81ecec;
+        --biweekly: #fab1a0;
+        --every-other-day: #d4e6f1;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: #f5f7fa;
+        color: var(--dark);
+        line-height: 1.6;
+      }
+
+      header {
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--dark) 100%
+        );
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+
+      .week-selector {
+        display: flex;
+        justify-content: center;
+        margin: 1.5rem 0;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .week-btn {
+        background-color: var(--secondary);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .week-btn:hover {
+        background-color: #2980b9;
+      }
+
+      .current-week {
+        font-weight: bold;
+        font-size: 1.2rem;
+        background-color: var(--primary);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        text-align: center;
+        min-width: 250px;
+      }
+
+      .week-range {
+        font-size: 0.9rem;
+        font-weight: normal;
+        display: block;
+        margin-top: 0.3rem;
+      }
+
+      .progress-container {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        text-align: center;
+      }
+
+      .progress-bar {
+        height: 25px;
+        background-color: #eee;
+        border-radius: 12px;
+        margin: 1rem 0;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--secondary) 0%,
+          var(--primary) 100%
+        );
+        border-radius: 12px;
+        width: 0%;
+        transition: width 0.5s ease-in-out;
+      }
+
+      .stats {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 1rem;
+      }
+
+      .stat-item {
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary);
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+      }
+
+      .days-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .day-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .day-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--light);
+      }
+
+      .day-title {
+        color: var(--primary);
+        font-size: 1.2rem;
+      }
+
+      .day-completion {
+        font-size: 0.9rem;
+        background-color: var(--light);
+        padding: 0.3rem 0.6rem;
+        border-radius: 12px;
+      }
+
+      .task-list {
+        list-style-type: none;
+      }
+
+      .task-item {
+        display: flex;
+        align-items: center;
+        padding: 0.8rem;
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.2s;
+      }
+
+      .task-item:hover {
+        background-color: #f9f9f9;
+      }
+
+      .task-item input[type='checkbox'] {
+        margin-right: 1rem;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+      }
+
+      .task-item label {
+        flex: 1;
+        cursor: pointer;
+      }
+
+      .task-item.completed label {
+        text-decoration: line-through;
+        color: #7f8c8d;
+      }
+
+      .frequency-badge {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        margin-left: 0.5rem;
+      }
+
+      .daily {
+        background-color: var(--daily);
+        color: #d35400;
+      }
+      .weekly {
+        background-color: var(--weekly);
+        color: #00cec9;
+      }
+      .biweekly {
+        background-color: var(--biweekly);
+        color: #e17055;
+      }
+      .every-other-day {
+        background-color: var(--every-other-day);
+        color: #2874a6;
+      }
+
+      .area-badge {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        margin-left: 0.5rem;
+        background-color: var(--light);
+        color: var(--dark);
+      }
+
+      footer {
+        text-align: center;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        background-color: var(--dark);
+        color: white;
+      }
+
+      @media (max-width: 768px) {
+        .days-container {
+          grid-template-columns: 1fr;
+        }
+
+        .week-selector {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Plan de Limpieza</h1>
+    </header>
+
+    <div class="container">
+      <div class="week-selector">
+        <button class="week-btn" id="prev-week">← Semana Anterior</button>
+        <div class="current-week" id="current-week">
+          Semana 1 (Par)
+          <span class="week-range" id="week-range">1 Ene - 7 Ene 2023</span>
+        </div>
+        <button class="week-btn" id="next-week">Semana Siguiente →</button>
+      </div>
+
+      <div class="progress-container">
+        <h2>Progreso de la semana</h2>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="stats">
+          <div class="stat-item">
+            <div class="stat-value" id="completed-tasks">0</div>
+            <div class="stat-label">Completadas</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="total-tasks">0</div>
+            <div class="stat-label">Total tareas</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="completion-rate">0%</div>
+            <div class="stat-label">Porcentaje</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="days-container" id="days-container">
+        <!-- Los días se generarán con JavaScript -->
+      </div>
+    </div>
+
+    <footer>
+      <p>Plan de Limpieza para Departamento Triplex | © 2025</p>
+    </footer>
+
+    <script>
+      // Datos de las tareas de limpieza
+      const cleaningTasks = {
+        daily: [
+          {
+            id: 'daily-1',
+            task: 'Lavar y planchar ropa de Jorge Enrique',
+            area: 'Lavandería',
+            frequency: 'daily',
+          },
+          {
+            id: 'daily-2',
+            task: 'Lavar ollas y utensilios de cocina',
+            area: 'Cocina',
+            frequency: 'daily',
+          },
+          {
+            id: 'daily-3',
+            task: 'Limpiar mesas de trabajo y lavaplatos',
+            area: 'Cocina',
+            frequency: 'daily',
+          },
+          {
+            id: 'daily-4',
+            task: 'Barrer planta de la sala',
+            area: 'Sala y Comedor',
+            frequency: 'daily',
+          },
+          {
+            id: 'daily-5',
+            task: 'Revisar y botar papeles de basura de baños',
+            area: 'Baños',
+            frequency: 'daily',
+          },
+          {
+            id: 'daily-6',
+            task: 'Botar basura de cocina y dejar en cochera',
+            area: 'Cocina',
+            frequency: 'daily',
+          },
+        ],
+        everyOtherDay: [
+          {
+            id: 'eod-1',
+            task: 'Lavar trapeadores de pisos',
+            area: 'Lavandería',
+            frequency: 'every-other-day',
+          },
+          {
+            id: 'eod-2',
+            task: 'Lavar trapos de cocina',
+            area: 'Lavandería',
+            frequency: 'every-other-day',
+          },
+        ],
+        weekly: [
+          {
+            id: 'weekly-1',
+            task: 'Limpieza exhaustiva de cocina',
+            area: 'Cocina',
+            frequency: 'weekly',
+          },
+          {
+            id: 'weekly-2',
+            task: 'Limpieza exhaustiva de refrigeradora',
+            area: 'Cocina',
+            frequency: 'weekly',
+          },
+          {
+            id: 'weekly-3',
+            task: 'Lavar ropa de adultos',
+            area: 'Lavandería',
+            frequency: 'weekly',
+          },
+          {
+            id: 'weekly-4',
+            task: 'Limpieza completa de terraza (barras, muebles, repisas)',
+            area: 'Terraza',
+            frequency: 'weekly',
+          },
+          {
+            id: 'weekly-5',
+            task: 'Planchar ropa de adultos',
+            area: 'Lavandería',
+            frequency: 'weekly',
+          },
+          {
+            id: 'weekly-6',
+            task: 'Limpiar área de gym',
+            area: 'Piso 3 - Gym',
+            frequency: 'weekly',
+          },
+        ],
+        biweekly: [
+          {
+            id: 'biweekly-1',
+            task: 'Limpiar sala de estar',
+            area: 'Piso 1 - Sala de estar',
+            frequency: 'biweekly',
+          },
+          {
+            id: 'biweekly-2',
+            task: 'Aspirar piso de césped artificial',
+            area: 'Piso 3 - Área general',
+            frequency: 'biweekly',
+          },
+          {
+            id: 'biweekly-3',
+            task: 'Limpieza completa de vidrios de terraza',
+            area: 'Piso 3 - Terraza',
+            frequency: 'biweekly',
+          },
+          {
+            id: 'biweekly-4',
+            task: 'Limpiar hojas de las plantas de terraza',
+            area: 'Piso 3 - Terraza',
+            frequency: 'biweekly',
+          },
+          {
+            id: 'biweekly-5',
+            task: 'Limpiar balcón habitación matrimonial',
+            area: 'Habitación Matrimonial',
+            frequency: 'biweekly',
+          },
+          {
+            id: 'biweekly-6',
+            task: 'Limpiar balcón sala/comedor',
+            area: 'Sala y Comedor',
+            frequency: 'biweekly',
+          },
+          {
+            id: 'biweekly-7',
+            task: 'Lavar zapatillas (las dejadas en lavandería)',
+            area: 'Lavandería',
+            frequency: 'biweekly',
+          },
+          {
+            id: 'biweekly-8',
+            task: 'Limpieza profunda de jebes de Jorge Enrique',
+            area: 'Habitación Jorge Enrique',
+            frequency: 'biweekly',
+          },
+        ],
+      };
+
+      // Días de la semana en español
+      const daysOfWeek = [
+        'Lunes',
+        'Martes',
+        'Miércoles',
+        'Jueves',
+        'Viernes',
+        'Sábado',
+        'Domingo',
+      ];
+
+      // Meses en español
+      const months = [
+        'Ene',
+        'Feb',
+        'Mar',
+        'Abr',
+        'May',
+        'Jun',
+        'Jul',
+        'Ago',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dic',
+      ];
+
+      // Función para formatear fechas
+      function formatDate(date) {
+        return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+      }
+
+      // Función para obtener el rango de fechas de una semana
+      function getWeekRange(weekOffset) {
+        const now = new Date();
+        const currentDay = now.getDay(); // 0 (Domingo) a 6 (Sábado)
+        const currentDate = now.getDate();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+
+        // Ajustar para que la semana comience en Lunes
+        const adjustToMonday = currentDay === 0 ? -6 : 1;
+        const firstDayOfWeek = new Date(
+          currentYear,
+          currentMonth,
+          currentDate - currentDay + adjustToMonday + weekOffset * 7
+        );
+        const lastDayOfWeek = new Date(firstDayOfWeek);
+        lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+
+        return {
+          start: firstDayOfWeek,
+          end: lastDayOfWeek,
+          range: `${formatDate(firstDayOfWeek)} - ${formatDate(lastDayOfWeek)}`,
+        };
+      }
+
+      // Función para generar las tareas de cada día
+      function generateDailyTasks(weekOffset, isEvenWeek) {
+        const daysContainer = document.getElementById('days-container');
+        daysContainer.innerHTML = '';
+
+        // Obtener el rango de fechas para mostrar
+        const weekRange = getWeekRange(weekOffset);
+        document.getElementById('week-range').textContent = weekRange.range;
+
+        // Generar tarjetas para cada día laboral (Lunes a Viernes)
+        for (let i = 0; i < 5; i++) {
+          const dayDate = new Date(weekRange.start);
+          dayDate.setDate(weekRange.start.getDate() + i);
+
+          const dayCard = document.createElement('div');
+          dayCard.className = 'day-card';
+
+          const dayHeader = document.createElement('div');
+          dayHeader.className = 'day-header';
+
+          const dayTitle = document.createElement('div');
+          dayTitle.className = 'day-title';
+          dayTitle.textContent = `${daysOfWeek[i]} - ${formatDate(dayDate)}`;
+
+          const dayCompletion = document.createElement('div');
+          dayCompletion.className = 'day-completion';
+          dayCompletion.id = `day-${i}-completion`;
+          dayCompletion.textContent = '0/0 tareas';
+
+          dayHeader.appendChild(dayTitle);
+          dayHeader.appendChild(dayCompletion);
+          dayCard.appendChild(dayHeader);
+
+          const taskList = document.createElement('ul');
+          taskList.className = 'task-list';
+          taskList.id = `day-${i}-tasks`;
+
+          // Añadir tareas diarias
+          cleaningTasks.daily.forEach((task) => {
+            const li = createTaskElement(task, `day-${i}`);
+            taskList.appendChild(li);
+          });
+
+          // Añadir tareas interdiarias (Lunes, Miércoles, Viernes)
+          if (i % 2 === 0) {
+            cleaningTasks.everyOtherDay.forEach((task) => {
+              const li = createTaskElement(task, `day-${i}`);
+              taskList.appendChild(li);
+            });
+          }
+
+          // Añadir tareas semanales los días específicos
+          if (i === 0) {
+            // Lunes - Limpieza de cocina
+            cleaningTasks.weekly
+              .filter((t) => t.id === 'weekly-1' || t.id === 'weekly-2')
+              .forEach((task) => {
+                const li = createTaskElement(task, `day-${i}`);
+                taskList.appendChild(li);
+              });
+          }
+
+          if (i === 1) {
+            // Martes - Lavandería adultos
+            cleaningTasks.weekly
+              .filter((t) => t.id === 'weekly-3' || t.id === 'weekly-4')
+              .forEach((task) => {
+                const li = createTaskElement(task, `day-${i}`);
+                taskList.appendChild(li);
+              });
+          }
+
+          if (i === 2) {
+            // Miércoles - Terraza y gym
+            cleaningTasks.weekly
+              .filter((t) => t.id === 'weekly-5' || t.id === 'weekly-6')
+              .forEach((task) => {
+                const li = createTaskElement(task, `day-${i}`);
+                taskList.appendChild(li);
+              });
+          }
+
+          // Añadir tareas quincenales en semanas pares
+          if (!isEvenWeek && i === 3) {
+            // Jueves - Tareas quincenales (parte 1)
+            cleaningTasks.biweekly
+              .filter((t) =>
+                [
+                  'biweekly-1',
+                  'biweekly-2',
+                  'biweekly-3',
+                  'biweekly-4',
+                ].includes(t.id)
+              )
+              .forEach((task) => {
+                const li = createTaskElement(task, `day-${i}`);
+                taskList.appendChild(li);
+              });
+          }
+
+          if (!isEvenWeek && i === 4) {
+            // Viernes - Tareas quincenales (parte 2)
+            cleaningTasks.biweekly
+              .filter((t) =>
+                [
+                  'biweekly-5',
+                  'biweekly-6',
+                  'biweekly-7',
+                  'biweekly-8',
+                ].includes(t.id)
+              )
+              .forEach((task) => {
+                const li = createTaskElement(task, `day-${i}`);
+                taskList.appendChild(li);
+              });
+          }
+
+          dayCard.appendChild(taskList);
+          daysContainer.appendChild(dayCard);
+        }
+
+        // Actualizar estadísticas
+        updateStats();
+        updateAllDayCompletions();
+      }
+
+      function createTaskElement(task, dayId) {
+        const li = document.createElement('li');
+        li.className = 'task-item';
+        li.dataset.id = `${dayId}-${task.id}`;
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `${dayId}-${task.id}`;
+        checkbox.checked = isTaskCompleted(`${dayId}-${task.id}`);
+
+        const label = document.createElement('label');
+        label.htmlFor = `${dayId}-${task.id}`;
+        label.textContent = task.task;
+
+        const areaSpan = document.createElement('span');
+        areaSpan.className = 'area-badge';
+        areaSpan.textContent = task.area;
+
+        const frequencyBadge = document.createElement('span');
+        frequencyBadge.className = `frequency-badge ${task.frequency}`;
+
+        switch (task.frequency) {
+          case 'daily':
+            frequencyBadge.textContent = 'Diario';
+            break;
+          case 'weekly':
+            frequencyBadge.textContent = 'Semanal';
+            break;
+          case 'biweekly':
+            frequencyBadge.textContent = 'Quincenal';
+            break;
+          case 'every-other-day':
+            frequencyBadge.textContent = 'Interdiario';
+            break;
+        }
+
+        label.appendChild(areaSpan);
+        label.appendChild(frequencyBadge);
+
+        li.appendChild(checkbox);
+        li.appendChild(label);
+
+        if (checkbox.checked) {
+          li.classList.add('completed');
+        }
+
+        checkbox.addEventListener('change', function () {
+          if (this.checked) {
+            li.classList.add('completed');
+            markTaskCompleted(`${dayId}-${task.id}`, true);
+          } else {
+            li.classList.remove('completed');
+            markTaskCompleted(`${dayId}-${task.id}`, false);
+          }
+          updateStats();
+          updateDayCompletion(dayId);
+        });
+
+        return li;
+      }
+
+      // Funciones para manejar el almacenamiento local
+      function getWeekKey() {
+        const currentWeek = document.getElementById('current-week').textContent;
+        return `cleaning_${currentWeek.replace(/\s+/g, '_').toLowerCase()}`;
+      }
+
+      function getCompletedTasks() {
+        const weekKey = getWeekKey();
+        const completed = localStorage.getItem(weekKey);
+        return completed ? JSON.parse(completed) : [];
+      }
+
+      function saveCompletedTasks(tasks) {
+        const weekKey = getWeekKey();
+        localStorage.setItem(weekKey, JSON.stringify(tasks));
+      }
+
+      function isTaskCompleted(taskId) {
+        const completedTasks = getCompletedTasks();
+        return completedTasks.includes(taskId);
+      }
+
+      function markTaskCompleted(taskId, completed) {
+        const completedTasks = getCompletedTasks();
+
+        if (completed) {
+          if (!completedTasks.includes(taskId)) {
+            completedTasks.push(taskId);
+          }
+        } else {
+          const index = completedTasks.indexOf(taskId);
+          if (index > -1) {
+            completedTasks.splice(index, 1);
+          }
+        }
+
+        saveCompletedTasks(completedTasks);
+      }
+
+      // Actualizar estadísticas
+      function updateStats() {
+        const allTasks = document.querySelectorAll('.task-item');
+        const completedTasks = document.querySelectorAll(
+          '.task-item.completed'
+        );
+
+        document.getElementById('completed-tasks').textContent =
+          completedTasks.length;
+        document.getElementById('total-tasks').textContent = allTasks.length;
+
+        const completionRate =
+          allTasks.length > 0
+            ? Math.round((completedTasks.length / allTasks.length) * 100)
+            : 0;
+        document.getElementById('completion-rate').textContent =
+          `${completionRate}%`;
+
+        document.getElementById('progress-fill').style.width =
+          `${completionRate}%`;
+      }
+
+      // Actualizar el progreso de cada día
+      function updateDayCompletion(dayId) {
+        const dayTasks = document.querySelectorAll(
+          `#${dayId}-tasks .task-item`
+        );
+        const completedDayTasks = document.querySelectorAll(
+          `#${dayId}-tasks .task-item.completed`
+        );
+
+        const completionElement = document.getElementById(
+          `${dayId}-completion`
+        );
+        if (completionElement) {
+          completionElement.textContent = `${completedDayTasks.length}/${dayTasks.length} tareas`;
+        }
+      }
+
+      // Actualizar todas las finalizaciones de día
+      function updateAllDayCompletions() {
+        for (let i = 0; i < 5; i++) {
+          updateDayCompletion(`day-${i}`);
+        }
+      }
+
+      // Navegación por semanas
+      let currentWeekOffset = 0;
+      let isEvenWeek = false;
+
+      function updateWeekDisplay() {
+        const weekType = isEvenWeek ? 'Par' : 'Impar';
+        document.getElementById('current-week').innerHTML =
+          `Semana ${Math.abs(currentWeekOffset) + 1} (${weekType}) <span class="week-range" id="week-range">1 Ene - 7 Ene 2023</span>`;
+
+        // Generar tareas para la semana
+        generateDailyTasks(currentWeekOffset, isEvenWeek);
+      }
+
+      document
+        .getElementById('prev-week')
+        .addEventListener('click', function () {
+          currentWeekOffset--;
+          isEvenWeek = !isEvenWeek;
+          updateWeekDisplay();
+        });
+
+      document
+        .getElementById('next-week')
+        .addEventListener('click', function () {
+          currentWeekOffset++;
+          isEvenWeek = !isEvenWeek;
+          updateWeekDisplay();
+        });
+
+      // Inicializar
+      document.addEventListener('DOMContentLoaded', function () {
+        // Determinar semana actual y si es par o impar
+        const today = new Date();
+        const startOfYear = new Date(today.getFullYear(), 0, 1);
+        const days = Math.floor((today - startOfYear) / (24 * 60 * 60 * 1000));
+        const weekNumber = Math.ceil(days / 7);
+        isEvenWeek = weekNumber % 2 === 0;
+
+        updateWeekDisplay();
+      });
+    </script>
+  </body>
+</html>
